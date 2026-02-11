@@ -1,0 +1,47 @@
+services:
+
+  frontend:
+    image: nginx:alpine
+    container_name: blog-frontend
+    ports:
+      - "88:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+    networks:
+      - blog-net
+
+  backend:
+    build: ./backend
+    container_name: blog-backend
+    ports:
+      - "5000:5000"
+  
+    depends_on:
+      - db
+    networks:
+      - blog-net
+
+  db:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: blogdb
+      MYSQL_USER: bloguser
+      MYSQL_PASSWORD: blogpassword
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - blog-net
+
+networks:
+  blog-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
